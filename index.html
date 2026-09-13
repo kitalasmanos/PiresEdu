@@ -41,6 +41,10 @@
                 <p class="muted">Entra para abrir a tua agenda pessoal.</p>
                 <form id="loginForm" class="stack-form">
                     <label>
+              Nome
+              <input id="displayName" name="displayName" type="text" autocomplete="name" maxlength="80" placeholder="O teu nome (ao criar conta)" />
+            </label>
+                    <label>
               Email
               <input id="loginEmail" name="email" type="email" autocomplete="email" placeholder="nome@escola.pt" required />
             </label>
@@ -78,8 +82,8 @@
             <div class="sidebar-bottom">
                 <button class="year-switcher" id="yearSwitcher" type="button"><span>2026/27</span><span aria-hidden="true">⌄</span></button>
                 <button class="profile-button" id="profileButton" type="button">
-            <span class="avatar">MA</span>
-            <span><strong>Hugo Pires</strong><small>Professor</small></span>
+            <span class="avatar" id="profileAvatar">—</span>
+            <span><strong id="profileName">A carregar…</strong><small id="profileEmail">Professor</small></span>
             <span aria-hidden="true">⋮</span>
           </button>
             </div>
@@ -89,8 +93,8 @@
             <header class="topbar">
                 <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Abrir menu">☰</button>
                 <div>
-                    <p class="eyebrow" id="pageEyebrow">sábado, 12 de setembro</p>
-                    <h1 id="pageTitle">Bom dia, Hugo</h1>
+                    <p class="eyebrow" id="pageEyebrow">Hoje</p>
+                    <h1 id="pageTitle">A tua agenda</h1>
                 </div>
                 <div class="topbar-actions">
                     <button class="icon-button notification-button" id="notificationButton" type="button" aria-label="Ver alertas">♧<span class="notification-dot"></span></button>
@@ -139,7 +143,7 @@
                             <div>
                                 <p class="eyebrow">Atenção</p>
                                 <h2>Alertas</h2>
-                            </div><button class="icon-button" type="button" aria-label="Definições dos alertas">⚙</button></div>
+                            </div><button class="icon-button" id="alertSettingsButton" type="button" aria-label="Definições dos alertas">⚙</button></div>
                         <ul class="alert-list" id="alertList"></ul>
                     </section>
                 </div>
@@ -170,7 +174,7 @@
 
             <section class="view" id="agendaView" data-view-content="agenda">
                 <div class="view-toolbar">
-                    <div class="segmented-control"><button class="active">Mês</button><button>Semana</button><button>Lista</button></div>
+                    <div class="segmented-control"><button class="active" data-agenda-mode="month" type="button">Mês</button><button data-agenda-mode="week" type="button">Semana</button><button data-agenda-mode="list" type="button">Lista</button></div>
                     <div class="calendar-controls"><button class="icon-button" id="previousMonth" type="button" aria-label="Mês anterior">‹</button><strong id="calendarMonth"></strong><button class="icon-button" id="nextMonth" type="button" aria-label="Mês seguinte">›</button></div>
                 </div>
                 <section class="card calendar-card">
@@ -200,7 +204,7 @@
                     <div>
                         <p class="eyebrow">Semana de 14–18 setembro</p>
                         <h2>Horário semanal</h2>
-                    </div><button class="button button--secondary" id="editSchedule" data-edit-timetable>Editar horário</button></div>
+                    </div><div class="inline-actions"><button class="button button--secondary" id="editClassButton" type="button">Editar turma</button><button class="button button--secondary" id="editSchedule" data-edit-timetable type="button">Editar horário</button></div></div>
                 <section class="card timetable-card">
                     <div class="timetable" id="timetable"></div>
                 </section>
@@ -220,7 +224,7 @@
                             <p class="eyebrow">8.º A · Matemática</p>
                             <h2>Lista de alunos</h2>
                         </div>
-                        <div class="inline-actions"><button class="button button--secondary" id="importStudents">Importar CSV</button><button class="button button--primary" id="newStudent">＋ Aluno</button></div>
+                        <div class="inline-actions"><button class="button button--secondary" id="importStudents" type="button">Importar Excel/CSV</button><input class="hidden" id="studentFile" type="file" accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel" /><button class="button button--primary" id="newStudent" type="button">＋ Aluno</button></div>
                     </div>
                     <div class="table-wrap">
                         <table>
@@ -291,45 +295,46 @@
         </main>
     </div>
 
-    <dialog class="modal" id="eventModal">
-        <form method="dialog" class="modal-card" id="eventForm">
-            <div class="modal-heading">
-                <div>
-                    <p class="eyebrow">Agenda</p>
-                    <h2>Novo evento</h2>
-                </div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
-            <label>Tipo<select id="eventType"><option value="assessment">Avaliação</option><option value="meeting">Reunião</option><option value="visit">Visita de estudo</option><option value="personal">Pessoal</option></select></label>
-            <label>Título<input id="eventTitle" required maxlength="80" placeholder="Ex.: Teste de Álgebra" /></label>
-            <div class="form-row"><label>Data<input id="eventDate" type="date" required /></label><label>Hora<input id="eventTime" type="time" /></label></div>
-            <label>Turma<select id="eventClass"><option value="8.º A">8.º A</option><option value="9.º B">9.º B</option><option value="Pessoal">Pessoal</option></select></label>
-            <div class="modal-actions"><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar evento</button></div>
-        </form>
-    </dialog>
-
-    <dialog class="modal" id="profileModal">
-        <div class="modal-card">
-            <div class="modal-heading">
-                <div>
-                    <p class="eyebrow">Conta</p>
-                    <h2>Definições</h2>
-                </div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
-            <div class="settings-option"><span class="settings-icon">♙</span>
-                <div><strong>Modo de dados</strong>
-                    <p id="dataModeText">Supabase — os teus dados são privados por conta.</p>
-                </div>
-            </div>
-            <div class="settings-option"><span class="settings-icon">◌</span>
-                <div><strong>Notificações</strong>
-                    <p>Configura lembretes de aulas, testes e reuniões.</p>
-                </div>
-            </div><button class="button button--danger button--wide" id="logoutButton">Terminar sessão</button></div>
-    </dialog>
-
+    <dialog class="modal" id="eventModal"><form class="modal-card" id="eventForm">
+        <div class="modal-heading"><div><p class="eyebrow">Agenda</p><h2 id="eventModalTitle">Novo evento</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
+        <label>Tipo<select id="eventType"><option value="assessment">Avaliação</option><option value="meeting">Reunião</option><option value="visit">Visita de estudo</option><option value="break">Pausa/Feriado</option><option value="personal">Pessoal</option></select></label>
+        <label>Título<input id="eventTitle" required maxlength="160" /></label><div class="form-row"><label>Data<input id="eventDate" type="date" required /></label><label>Hora<input id="eventTime" type="time" /></label></div><label>Turma<select id="eventClass"></select></label>
+        <div class="modal-actions"><button class="button button--danger hidden" id="eventDeleteButton" type="button">Eliminar</button><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar</button></div></form></dialog>
+    <dialog class="modal" id="taskModal"><form class="modal-card" id="taskForm">
+        <div class="modal-heading"><div><p class="eyebrow">Organização</p><h2 id="taskModalTitle">Nova tarefa</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
+        <label>Tarefa<input id="taskTitle" required maxlength="200" /></label><div class="form-row"><label>Data limite<input id="taskDue" type="date" /></label><label>Prioridade<select id="taskPriority"><option value="1">Alta</option><option value="2" selected>Média</option><option value="3">Baixa</option></select></label></div><label>Turma<select id="taskClass"></select></label>
+        <div class="modal-actions"><button class="button button--danger hidden" id="taskDeleteButton" type="button">Eliminar</button><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar</button></div></form></dialog>
+    <dialog class="modal" id="classModal"><form class="modal-card" id="classForm">
+        <div class="modal-heading"><div><p class="eyebrow">Turmas</p><h2 id="classModalTitle">Nova turma</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
+        <div class="form-row"><label>Turma<input id="className" required maxlength="100" /></label><label>Disciplina<input id="classSubject" required maxlength="120" /></label></div><div class="form-row"><label>Sala<input id="classRoom" maxlength="80" /></label><label>Cor<input id="classColor" type="color" value="#7cb092" /></label></div><label>Objetivo<textarea id="classObjective" rows="3" maxlength="1000"></textarea></label>
+        <div class="modal-actions"><button class="button button--danger hidden" id="classDeleteButton" type="button">Eliminar</button><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar</button></div></form></dialog>
+    <dialog class="modal" id="studentModal"><form class="modal-card" id="studentForm">
+        <div class="modal-heading"><div><p class="eyebrow">Alunos</p><h2 id="studentModalTitle">Novo aluno</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
+        <label>Nome completo<input id="studentName" required maxlength="160" autocomplete="name" /></label><div class="form-row"><label>Número / referência<input id="studentReference" maxlength="80" /></label><label>Objetivo<input id="studentGoal" maxlength="500" /></label></div><label>Encarregado de educação<input id="guardianName" maxlength="160" /></label><div class="form-row"><label>Email<input id="guardianEmail" type="email" maxlength="160" /></label><label>Telefone<input id="guardianPhone" type="tel" maxlength="50" /></label></div>
+        <div class="modal-actions"><button class="button button--danger hidden" id="studentDeleteButton" type="button">Eliminar</button><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar</button></div></form></dialog>
+    <dialog class="modal" id="scheduleModal"><form class="modal-card" id="scheduleForm">
+        <div class="modal-heading"><div><p class="eyebrow">Horário</p><h2 id="scheduleModalTitle">Nova aula</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
+        <label>Turma<select id="slotClass" required></select></label><div class="form-row"><label>Dia<select id="slotWeekday"><option value="1">Segunda-feira</option><option value="2">Terça-feira</option><option value="3">Quarta-feira</option><option value="4">Quinta-feira</option><option value="5">Sexta-feira</option></select></label><label>Sala<input id="slotRoom" maxlength="80" /></label></div><div class="form-row"><label>Início<input id="slotStart" type="time" required /></label><label>Fim<input id="slotEnd" type="time" required /></label></div>
+        <div class="modal-actions"><button class="button button--danger hidden" id="slotDeleteButton" type="button">Eliminar</button><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar</button></div></form></dialog>
+    <dialog class="modal" id="assessmentModal"><form class="modal-card" id="assessmentForm">
+        <div class="modal-heading"><div><p class="eyebrow">Avaliação</p><h2 id="assessmentModalTitle">Novo instrumento</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
+        <label>Instrumento<input id="assessmentTitle" required maxlength="160" /></label><div class="form-row"><label>Data<input id="assessmentDate" type="date" /></label><label>Peso (%)<input id="assessmentWeight" type="number" min="0" max="100" step="0.01" value="0" required /></label></div><label>Estado<select id="assessmentStatus"><option value="planned">Planeado</option><option value="applied">Aplicado</option><option value="marking">A corrigir</option><option value="complete">Concluído</option></select></label>
+        <div class="modal-actions"><button class="button button--danger hidden" id="assessmentDeleteButton" type="button">Eliminar</button><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar</button></div></form></dialog>
+    <dialog class="modal" id="planModal"><form class="modal-card" id="planForm">
+        <div class="modal-heading"><div><p class="eyebrow">Planeamento</p><h2 id="planModalTitle">Nova aula planeada</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
+        <label>Data<input id="planDate" type="date" required /></label><label>Objetivos<textarea id="planObjectives" required rows="3" maxlength="2000"></textarea></label><label>Atividades<textarea id="planActivities" rows="3" maxlength="4000"></textarea></label><label>Sumário<textarea id="planSummary" rows="2" maxlength="4000"></textarea></label>
+        <div class="modal-actions"><button class="button button--danger hidden" id="planDeleteButton" type="button">Eliminar</button><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar</button></div></form></dialog>
+    <dialog class="modal" id="profileModal"><form class="modal-card" id="profileForm">
+        <div class="modal-heading"><div><p class="eyebrow">Conta</p><h2>Definições</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div><label>Nome apresentado<input id="profileDisplayName" required maxlength="80" autocomplete="name" /></label>
+        <div class="settings-option"><span class="settings-icon">♙</span><div><strong>Dados da conta</strong><p id="dataModeText">Os teus dados ficam isolados por conta.</p></div></div><label class="settings-option"><span class="settings-icon">◌</span><span><strong>Alertas no painel</strong><p>Mostra próximos eventos e avaliações.</p><input id="alertsEnabled" type="checkbox" checked /> Mostrar alertas</span></label><button class="text-button" id="clearDismissedAlerts" type="button">Voltar a mostrar alertas ocultos</button>
+        <div class="modal-actions"><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar definições</button></div><button class="button button--danger button--wide" id="logoutButton" type="button">Terminar sessão</button></form></dialog>
+    <dialog class="modal" id="yearModal"><form class="modal-card" id="yearForm">
+        <div class="modal-heading"><div><p class="eyebrow">Ano letivo</p><h2>Selecionar ano</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div><label>Ano disponível<select id="academicYearSelect"></select></label><div class="form-row"><label>Novo ano<input id="newYearLabel" maxlength="20" placeholder="Ex.: 2027/28" /></label><label>Início<input id="newYearStart" type="date" /></label></div><p class="muted">Para criar um ano, indica o rótulo e a data de início.</p><div class="modal-actions"><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Abrir ano</button></div></form></dialog>
+    <dialog class="modal" id="importModal"><div class="modal-card"><div class="modal-heading"><div><p class="eyebrow">Importação</p><h2>Lista de alunos</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div><p class="muted" id="importResult">A ler o ficheiro…</p><p class="muted">São reconhecidas as colunas Nome/Aluno, Número ou Referência, Objetivo, Encarregado, Email e Telefone. Os nomes repetidos na turma são ignorados.</p><div class="modal-actions"><button class="button button--primary" type="button" data-close-modal>Fechar</button></div></div></dialog>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="./js/supabase-config.js"></script>
     <script src="./js/app.js"></script>
 </body>
-
 </html>
