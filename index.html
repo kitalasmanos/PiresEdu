@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#254b3b" />
+    <meta name="description" content="Agenda pessoal e segura para professores." />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Caderno — agenda do professor</title>
+</head>
+
+<body>
+    <div class="auth-shell" id="authScreen">
+        <section class="auth-intro">
+            <a class="brand brand--light" href="#" aria-label="Caderno, página inicial">
+                <span class="brand-mark" aria-hidden="true">C</span>
+                <span>Caderno</span>
+            </a>
+            <div class="auth-copy">
+                <p class="eyebrow eyebrow--light">Agenda letiva pessoal</p>
+                <h1>O ano escolar, claro e à mão.</h1>
+                <p>Planeia aulas, acompanha turmas e não deixes passar o que importa — de setembro a agosto.</p>
+            </div>
+            <div class="intro-card">
+                <div class="intro-card__icon" aria-hidden="true">✓</div>
+                <div>
+                    <strong>Feito para o teu ritmo</strong>
+                    <p>Aulas, avaliações, tarefas e notas no mesmo lugar.</p>
+                </div>
+            </div>
+            <p class="auth-footnote">Os teus dados são guardados numa conta Supabase protegida e isolados por utilizador.</p>
+        </section>
+
+        <main class="auth-panel">
+            <div class="auth-card">
+                <span class="status-pill status-pill--preview" id="connectionStatus">Pré-visualização</span>
+                <h2>Bem-vindo de volta</h2>
+                <p class="muted">Entra para abrir a tua agenda pessoal.</p>
+                <form id="loginForm" class="stack-form">
+                    <label>
+              Email
+              <input id="loginEmail" name="email" type="email" autocomplete="email" placeholder="nome@escola.pt" required />
+            </label>
+                    <label>
+              Palavra-passe
+              <div class="password-field">
+                <input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+                <button class="icon-button" id="togglePassword" type="button" aria-label="Mostrar palavra-passe">◉</button>
+              </div>
+            </label>
+                    <button class="button button--primary button--wide" type="submit">Entrar</button>
+                </form>
+                
+                <button class="text-button" id="signUpButton" type="button">Criar uma conta</button>
+                <p class="form-message" id="authMessage" role="status"></p>
+                <p class="auth-help">Configura o Supabase em <code>js/supabase-config.js</code> para entrares na tua agenda segura.</p>
+            </div>
+        </main>
+    </div>
+
+    <div class="app-shell hidden" id="appShell">
+        <aside class="sidebar" aria-label="Navegação principal">
+            <a class="brand" href="#dashboard" aria-label="Caderno, Dashboard">
+                <span class="brand-mark" aria-hidden="true">C</span>
+                <span>Caderno</span>
+            </a>
+            <nav class="nav-list">
+                <button class="nav-item active" data-view="dashboard"><span aria-hidden="true">⌂</span>Hoje</button>
+                <button class="nav-item" data-view="agenda"><span aria-hidden="true">□</span>Agenda</button>
+                <button class="nav-item" data-view="schedule"><span aria-hidden="true">▦</span>Horário</button>
+                <button class="nav-item" data-view="classes"><span aria-hidden="true">◫</span>Turmas</button>
+                <button class="nav-item" data-view="assessment"><span aria-hidden="true">⌁</span>Avaliação</button>
+                <button class="nav-item" data-view="planning"><span aria-hidden="true">✦</span>Planeamento</button>
+            </nav>
+            <div class="sidebar-bottom">
+                <button class="year-switcher" id="yearSwitcher" type="button"><span>2026/27</span><span aria-hidden="true">⌄</span></button>
+                <button class="profile-button" id="profileButton" type="button">
+            <span class="avatar">MA</span>
+            <span><strong>Hugo Pires</strong><small>Professor</small></span>
+            <span aria-hidden="true">⋮</span>
+          </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Abrir menu">☰</button>
+                <div>
+                    <p class="eyebrow" id="pageEyebrow">sábado, 12 de setembro</p>
+                    <h1 id="pageTitle">Bom dia, Hugo</h1>
+                </div>
+                <div class="topbar-actions">
+                    <button class="icon-button notification-button" id="notificationButton" type="button" aria-label="Ver alertas">♧<span class="notification-dot"></span></button>
+                    <button class="button button--primary" id="newItemButton" type="button"><span aria-hidden="true">＋</span> Novo</button>
+                </div>
+            </header>
+
+            <section class="view active" id="dashboardView" data-view-content="dashboard">
+                <div class="dashboard-grid">
+                    <div class="welcome-card card">
+                        <div>
+                            <p class="eyebrow">O teu dia</p>
+                            <h2>Uma semana bem preparada começa aqui.</h2>
+                            <p class="muted" id="dashboardSummary">A carregar a tua agenda…</p>
+                        </div>
+                        <div class="date-stamp"><span id="dashboardDay">—</span><small id="dashboardMonth">—</small></div>
+                    </div>
+                    <div class="summary-card card"><span class="summary-icon summary-icon--blue">▦</span>
+                        <div><strong>3</strong>
+                            <p>próximas aulas</p>
+                        </div>
+                    </div>
+                    <div class="summary-card card"><span class="summary-icon summary-icon--gold">◷</span>
+                        <div><strong>2</strong>
+                            <p>tarefas pendentes</p>
+                        </div>
+                    </div>
+                    <div class="summary-card card"><span class="summary-icon summary-icon--pink">⌁</span>
+                        <div><strong>1</strong>
+                            <p>avaliação a corrigir</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-grid content-grid--two">
+                    <section class="card section-card">
+                        <div class="section-heading">
+                            <div>
+                                <p class="eyebrow">Segunda-feira, 14 set.</p>
+                                <h2>Próximas aulas</h2>
+                            </div><button class="text-button" data-go-to="schedule">Ver horário</button></div>
+                        <div class="lesson-list" id="todayLessons"></div>
+                    </section>
+                    <section class="card section-card alerts-card">
+                        <div class="section-heading">
+                            <div>
+                                <p class="eyebrow">Atenção</p>
+                                <h2>Alertas</h2>
+                            </div><button class="icon-button" type="button" aria-label="Definições dos alertas">⚙</button></div>
+                        <ul class="alert-list" id="alertList"></ul>
+                    </section>
+                </div>
+
+                <div class="content-grid content-grid--two content-grid--bottom">
+                    <section class="card section-card tasks-card">
+                        <div class="section-heading">
+                            <div>
+                                <p class="eyebrow">Organização</p>
+                                <h2>Tarefas a fazer</h2>
+                            </div><button class="text-button" id="addTaskButton">Adicionar</button></div>
+                        <ul class="task-list" id="taskList"></ul>
+                    </section>
+                    <section class="card section-card quick-note-card">
+                        <div class="section-heading">
+                            <div>
+                                <p class="eyebrow">Bloco de notas</p>
+                                <h2>Nota rápida</h2>
+                            </div><span class="note-date">Hoje</span></div>
+                        <form id="quickNoteForm">
+                            <textarea id="quickNote" rows="5" maxlength="500" placeholder="Escreve algo de que não te queres esquecer…"></textarea>
+                            <div class="note-actions"><span class="muted" id="noteCount">0/500</span><button class="button button--primary" type="submit">Guardar nota</button></div>
+                        </form>
+                        <div class="saved-notes" id="savedNotes" aria-live="polite"></div>
+                    </section>
+                </div>
+            </section>
+
+            <section class="view" id="agendaView" data-view-content="agenda">
+                <div class="view-toolbar">
+                    <div class="segmented-control"><button class="active">Mês</button><button>Semana</button><button>Lista</button></div>
+                    <div class="calendar-controls"><button class="icon-button" id="previousMonth" type="button" aria-label="Mês anterior">‹</button><strong id="calendarMonth"></strong><button class="icon-button" id="nextMonth" type="button" aria-label="Mês seguinte">›</button></div>
+                </div>
+                <section class="card calendar-card">
+                    <div class="calendar-weekdays"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </section>
+                <div class="content-grid content-grid--two agenda-bottom">
+                    <section class="card section-card">
+                        <div class="section-heading">
+                            <div>
+                                <p class="eyebrow">Este mês</p>
+                                <h2>Datas importantes</h2>
+                            </div>
+                        </div>
+                        <div class="event-list" id="importantEvents"></div>
+                    </section>
+                    <section class="card section-card legend-card">
+                        <p class="eyebrow">Legenda</p>
+                        <div class="legend"><span><i class="legend-dot lesson-dot"></i>Aulas</span><span><i class="legend-dot assessment-dot"></i>Avaliações</span><span><i class="legend-dot meeting-dot"></i>Reuniões</span><span><i class="legend-dot break-dot"></i>Pausa/Feriado</span></div>
+                        <button class="button button--secondary button--wide" id="agendaNewEvent">Adicionar evento</button>
+                    </section>
+                </div>
+            </section>
+
+            <section class="view" id="scheduleView" data-view-content="schedule">
+                <div class="view-toolbar">
+                    <div>
+                        <p class="eyebrow">Semana de 14–18 setembro</p>
+                        <h2>Horário semanal</h2>
+                    </div><button class="button button--secondary" id="editSchedule" data-edit-timetable>Editar horário</button></div>
+                <section class="card timetable-card">
+                    <div class="timetable" id="timetable"></div>
+                </section>
+                <p class="subtle-note">Clica numa aula para abrir o plano, sumário e assiduidade.</p>
+            </section>
+
+            <section class="view" id="classesView" data-view-content="classes">
+                <div class="view-toolbar">
+                    <div>
+                        <p class="eyebrow">2026/2027</p>
+                        <h2>As tuas turmas</h2>
+                    </div><button class="button button--primary" id="newClassButton">＋ Nova turma</button></div>
+                <div class="class-cards" id="classCards"></div>
+                <section class="card section-card roster-card">
+                    <div class="section-heading">
+                        <div>
+                            <p class="eyebrow">8.º A · Matemática</p>
+                            <h2>Lista de alunos</h2>
+                        </div>
+                        <div class="inline-actions"><button class="button button--secondary" id="importStudents">Importar CSV</button><button class="button button--primary" id="newStudent">＋ Aluno</button></div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Aluno</th>
+                                    <th>Objetivo do período</th>
+                                    <th>Faltas</th>
+                                    <th>Última observação</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+
+            <section class="view" id="assessmentView" data-view-content="assessment">
+                <div class="view-toolbar">
+                    <div>
+                        <p class="eyebrow">8.º A · Matemática</p>
+                        <h2>Avaliação do 1.º período</h2>
+                    </div><button class="button button--primary" id="newAssessment">＋ Instrumento</button></div>
+                <div class="assessment-overview" id="assessmentCards"></div>
+                <section class="card section-card">
+                    <div class="section-heading">
+                        <div>
+                            <p class="eyebrow">Grelha de avaliação</p>
+                            <h2>Resultados por aluno</h2>
+                        </div><button class="button button--secondary" id="exportGrades">Exportar CSV</button></div>
+                    <div class="table-wrap">
+                        <table class="grades-table">
+                            <thead>
+                                <tr>
+                                    <th>Aluno</th>
+                                    <th>Teste diagnóstico<br /><small>20%</small></th>
+                                    <th>Trabalho de grupo<br /><small>30%</small></th>
+                                    <th>Participação<br /><small>10%</small></th>
+                                    <th>Média atual<br /><small>40%</small></th>
+                                </tr>
+                            </thead>
+                            <tbody id="gradesTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+
+            <section class="view" id="planningView" data-view-content="planning">
+                <div class="view-toolbar">
+                    <div>
+                        <p class="eyebrow">8.º A · Matemática</p>
+                        <h2>Planeamento anual</h2>
+                    </div><button class="button button--primary" id="newPlan">＋ Unidade</button></div>
+                <div class="planning-summary">
+                    <section class="card progress-card">
+                        <p class="eyebrow">Progresso do programa</p>
+                        <div class="progress-title"><strong>26 de 78 aulas planeadas</strong><span>33%</span></div>
+                        <div class="progress-track"><i style="width:33%"></i></div>
+                        <p class="muted">Estás alinhada com o plano para setembro.</p>
+                    </section>
+                    <section class="card goals-card">
+                        <p class="eyebrow">Objetivo do período</p>
+                        <h3>Consolidar raciocínio algébrico e resolução de problemas.</h3><button class="text-button">Editar objetivo</button></section>
+                </div>
+                <section class="plan-timeline" id="planTimeline"></section>
+            </section>
+        </main>
+    </div>
+
+    <dialog class="modal" id="eventModal">
+        <form method="dialog" class="modal-card" id="eventForm">
+            <div class="modal-heading">
+                <div>
+                    <p class="eyebrow">Agenda</p>
+                    <h2>Novo evento</h2>
+                </div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
+            <label>Tipo<select id="eventType"><option value="assessment">Avaliação</option><option value="meeting">Reunião</option><option value="visit">Visita de estudo</option><option value="personal">Pessoal</option></select></label>
+            <label>Título<input id="eventTitle" required maxlength="80" placeholder="Ex.: Teste de Álgebra" /></label>
+            <div class="form-row"><label>Data<input id="eventDate" type="date" required /></label><label>Hora<input id="eventTime" type="time" /></label></div>
+            <label>Turma<select id="eventClass"><option value="8.º A">8.º A</option><option value="9.º B">9.º B</option><option value="Pessoal">Pessoal</option></select></label>
+            <div class="modal-actions"><button class="button button--secondary" type="button" data-close-modal>Cancelar</button><button class="button button--primary" type="submit">Guardar evento</button></div>
+        </form>
+    </dialog>
+
+    <dialog class="modal" id="profileModal">
+        <div class="modal-card">
+            <div class="modal-heading">
+                <div>
+                    <p class="eyebrow">Conta</p>
+                    <h2>Definições</h2>
+                </div><button class="icon-button" type="button" data-close-modal aria-label="Fechar">×</button></div>
+            <div class="settings-option"><span class="settings-icon">♙</span>
+                <div><strong>Modo de dados</strong>
+                    <p id="dataModeText">Supabase — os teus dados são privados por conta.</p>
+                </div>
+            </div>
+            <div class="settings-option"><span class="settings-icon">◌</span>
+                <div><strong>Notificações</strong>
+                    <p>Configura lembretes de aulas, testes e reuniões.</p>
+                </div>
+            </div><button class="button button--danger button--wide" id="logoutButton">Terminar sessão</button></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./js/supabase-config.js"></script>
+    <script src="./js/app.js"></script>
+</body>
+
+</html>

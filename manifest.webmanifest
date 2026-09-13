@@ -1,0 +1,14 @@
+{
+  "name": "Caderno — Agenda do Professor",
+  "short_name": "Caderno",
+  "description": "Agenda letiva pessoal para professores.",
+  "lang": "pt-PT",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f4ef",
+  "theme_color": "#254b3b",
+  "icons": [
+    { "src": "./icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icons/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
